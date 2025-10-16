@@ -3,25 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <title>Gerador de Chaves - Escala Fácil</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f0f0; }
-        .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
-        input { padding: 8px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 10px 20px; border: none; background-color: #2563eb; color: white; border-radius: 4px; cursor: pointer; }
-        #resultado { margin-top: 20px; font-weight: bold; font-family: monospace; font-size: 1.2rem; background: #eee; padding: 10px; border-radius: 4px; user-select: all; }
+        /* --- ESTRUTURA E FUNDO --- */
+        :root {
+            --gradient-start: #00BFFF;
+            --gradient-mid: #FF00FF;
+            --gradient-end: #FF0000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .background-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right,
+                var(--gradient-start),
+                var(--gradient-mid),
+                var(--gradient-end),
+                var(--gradient-mid),
+                var(--gradient-start)
+            );
+            background-size: 300% 100%;
+            animation: animated-gradient-background 8s linear infinite;
+            z-index: -2;
+        }
+
+        @keyframes animated-gradient-background {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 150% 50%; }
+        }
+
+        .glass-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: -1;
+        }
+
+        /* --- CARD PRINCIPAL --- */
+        .container {
+            background: rgba(255, 255, 255, 0.75);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #1a202c;
+        }
+
+        p {
+            color: #4a5568;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* --- BOTÕES --- */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #4a5568;
+            padding: 8px;
+            font-size: 1.5rem; /* Aumenta o tamanho do emoji */
+            line-height: 1;
+        }
+        .btn-secondary:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        /* Estado de 'copiado' para o botão */
+        .btn-secondary.copied {
+            background-color: #22c55e;
+            color: white;
+        }
+
+        /* --- ÁREA DO RESULTADO --- */
+        .resultado-container {
+            margin-top: 2rem;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 1rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        
+        #resultado {
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.25rem;
+            color: #1a202c;
+            user-select: all;
+            overflow-wrap: break-word;
+            text-align: left;
+        }
+        
+        /* --- RESPONSIVIDADE PARA CELULAR --- */
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .resultado-container {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            #resultado {
+                font-size: 1rem;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
+
+    <div class="background-gradient"></div>
+    <div class="glass-overlay"></div>
+
     <div class="container">
         <h1>Gerador de Chaves de Licença</h1>
-        <p>Gere chaves para o aplicativo Escala Fácil.</p>
-        <button id="gerarBtn">Gerar Nova Chave</button>
-        <div id="resultado">Sua chave aparecerá aqui...</div>
+        <p>Gere chaves de uso único para o aplicativo Escala Fácil.</p>
+        <button id="gerarBtn" class="btn btn-primary">Gerar Nova Chave</button>
+        
+        <div class="resultado-container">
+            <span id="resultado">Sua chave aparecerá aqui...</span>
+            <button id="copiarBtn" class="btn btn-secondary" title="Copiar Chave">📋</button>
+        </div>
     </div>
 
     <script>
-        // ESTE SEGREDO DEVE SER O MESMO USADO NO BACKEND RUST DO TAURI
         const SEGREDO = "EscalaFacil-2025-SegredoParaValidacaoUnica";
+
+        const gerarBtn = document.getElementById('gerarBtn');
+        const copiarBtn = document.getElementById('copiarBtn');
+        const resultadoEl = document.getElementById('resultado');
 
         function gerarParteAleatoria() {
             return Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -34,18 +200,37 @@
             const hashBuffer = await crypto.subtle.digest('SHA-1', data);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            // Usamos os primeiros 4 caracteres do hash como checksum
             return hashHex.substring(0, 4).toUpperCase();
         }
 
-        document.getElementById('gerarBtn').addEventListener('click', async () => {
+        gerarBtn.addEventListener('click', async () => {
             const parte1 = gerarParteAleatoria();
             const parte2 = gerarParteAleatoria();
             const payload = `${parte1}-${parte2}`;
             const checksum = await calcularChecksum(payload);
 
             const chaveCompleta = `EF25-${parte1}-${parte2}-${checksum}`;
-            document.getElementById('resultado').textContent = chaveCompleta;
+            resultadoEl.textContent = chaveCompleta;
+        });
+
+        copiarBtn.addEventListener('click', () => {
+            const keyText = resultadoEl.textContent;
+            if (keyText && keyText !== 'Sua chave aparecerá aqui...') {
+                navigator.clipboard.writeText(keyText).then(() => {
+                    // Feedback visual de sucesso
+                    copiarBtn.textContent = '✅';
+                    copiarBtn.classList.add('copied');
+                    
+                    // Volta ao estado normal após 2 segundos
+                    setTimeout(() => {
+                        copiarBtn.textContent = '📋';
+                        copiarBtn.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Falha ao copiar a chave: ', err);
+                    alert('Não foi possível copiar a chave automaticamente.');
+                });
+            }
         });
     </script>
 </body>
